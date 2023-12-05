@@ -44,19 +44,15 @@ export class BookDetails {
   @ApiProperty({ description: "ISBN книги" })
   isbn: string;
 
-  @Column({ nullable: true, default: 384 })
+  @Column({ nullable: true })
   @ApiProperty({ description: "Количество страниц книги" })
   pages: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false, default: "145х200" })
   @ApiProperty({ description: "Размеры книги" })
   size: string;
 
-  @Column({ nullable: true })
-  @ApiProperty({ description: "Цикл книг" })
-  circulation: string;
-
-  @Column({ nullable: true })
+  @Column({ nullable: false, default: 400 })
   @ApiProperty({ description: "Вес книги" })
   weight: number;
 

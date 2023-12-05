@@ -8,7 +8,7 @@ export class Books {
   @ApiProperty({ description: "Уникальный идентификатор книги" })
   id: number;
 
-  @Column()
+  @Column({ default: "" })
   @ApiProperty({ description: "Название книги" })
   title: string;
 
