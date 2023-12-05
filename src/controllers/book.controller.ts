@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from "@nestjs/common";
 import { BookService } from "src/services/book.service";
-import { Books } from "../models/books.entity";
+import { Books } from "../entities/books.entity";
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationQueryDto } from "src/dto/pagination.dto";
 

@@ -1,6 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import { LabirintBookParserService } from "src/services/labirint-parser.service";
-import { Books } from "../models/books.entity";
+import { Books } from "../entities/books.entity";
 import { ChitaiGorodParserService } from "../services/chitai-gorod-parser.service";
 import { ApiTags } from "@nestjs/swagger";
 
