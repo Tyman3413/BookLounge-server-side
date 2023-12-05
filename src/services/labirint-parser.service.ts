@@ -2,13 +2,16 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { BookDetails } from "src/models/book-details.entity";
-import { Books } from "src/models/books.entity";
+import { BookDetails } from "src/entities/book-details.entity";
+import { Books } from "src/entities/books.entity";
 import { Repository } from "typeorm";
+import { Logger } from "./logger.service";
 
 @Injectable()
 export class LabirintBookParserService {
   constructor(
+    private readonly logger: Logger,
+
     @InjectRepository(Books)
     private readonly bookRepository: Repository<Books>,
 
@@ -22,7 +25,7 @@ export class LabirintBookParserService {
 
     for (let page = 1; page <= maxPages; page++) {
       const responce = await axios.get(`https://www.labirint.ru/genres/1852/?page=${page}`);
-      console.log(`Parsing page ${page}...`);
+      this.logger.log(`Parsing page ${page}...`, LabirintBookParserService.name);
 
       if (responce.status === 200) {
         const $ = cheerio.load(responce.data);
@@ -99,7 +102,7 @@ export class LabirintBookParserService {
         await Promise.all(promises);
       }
     }
-    console.log("Parsing ended successfully");
+    this.logger.log("Parsing ended successfully", LabirintBookParserService.name);
     return books;
   }
 
@@ -142,13 +145,13 @@ export class LabirintBookParserService {
         const isbn = matches ? matches[0] : null;
 
         const weight_text = $(".weight").text().replace("Масса: ", "").replace(" г", "").trim();
-        const weightInt = parseInt(weight_text, 10);
+        const weight = parseInt(weight_text, 10);
 
         const size = $(".dimensions").text().replace("Размеры: ", "").replace(" мм", "").trim();
 
         const age_restriction = $("#age_dopusk").text().trim();
 
-        const genre = $(".genre a").last().text().trim();
+        const genre = $("#product-left-column #product-info").attr("data-maingenre-name");
 
         const description = $("#product-about p").text().trim();
 
@@ -175,9 +178,8 @@ export class LabirintBookParserService {
           existingBookDetails.image_cover = image_cover;
           existingBookDetails.publisher = publisher;
           existingBookDetails.series = series;
-          existingBookDetails.circulation = circulation;
-          existingBookDetails.weight = !isNaN(weightInt) ? weightInt : null;
-          existingBookDetails.size = size;
+          existingBookDetails.weight = weight || existingBookDetails.weight;
+          existingBookDetails.size = size || existingBookDetails.size;
           existingBookDetails.isbn = isbn;
           existingBookDetails.age_restriction = age_restriction;
           existingBookDetails.description = description;
@@ -189,7 +191,7 @@ export class LabirintBookParserService {
         }
       }
     } catch (error) {
-      console.error("Error: ", error.message);
+      this.logger.error(`Error: ${error.message}`, LabirintBookParserService.name);
     }
   }
 }

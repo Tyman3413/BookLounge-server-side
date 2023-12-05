@@ -1,17 +1,18 @@
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import * as dotenv from 'dotenv';
-import { JwtAuthService } from 'src/services/jwt/jwt.service';
-import { AuthController } from 'src/controllers/auth.controller';
-import { ParseBookController } from 'src/controllers/book-parser.controller';
-import { BookController } from 'src/controllers/book.controller';
-import { User } from 'src/models/user.entity';
-import { LabirintBookParserService } from 'src/services/labirint-parser.service';
-import { BookService } from 'src/services/book.service';
-import { Books } from 'src/models/books.entity';
-import { BookDetails } from 'src/models/book-details.entity';
-import {ChitaiGorodParserService} from "../../services/chitai-gorod-parser.service";
+import { Module } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import * as dotenv from "dotenv";
+import { JwtAuthService } from "src/services/jwt/jwt.service";
+import { AuthController } from "src/controllers/auth.controller";
+import { ParseBookController } from "src/controllers/book-parser.controller";
+import { BookController } from "src/controllers/book.controller";
+import { User } from "src/entities/user.entity";
+import { LabirintBookParserService } from "src/services/labirint-parser.service";
+import { BookService } from "src/services/book.service";
+import { Books } from "src/entities/books.entity";
+import { BookDetails } from "src/entities/book-details.entity";
+import { ChitaiGorodParserService } from "../../services/chitai-gorod-parser.service";
+import { Logger } from "../../services/logger.service";
 
 // Настройка .env файла
 dotenv.config();
@@ -20,7 +21,7 @@ dotenv.config();
   imports: [
     // Конфигурация подключения к базе данных PostgreSQL
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: "postgres",
       host: process.env.DATABASE_HOST,
       port: parseInt(process.env.DATABASE_PORT),
       username: process.env.DATABASE_USERNAME,
@@ -36,11 +37,11 @@ dotenv.config();
     // Регистрация JWT-токена
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '3d' }, // токен истекает через 3 дня
+      signOptions: { expiresIn: "3d" }, // токен истекает через 3 дня
     }),
   ],
   controllers: [AuthController, ParseBookController, BookController],
   exports: [TypeOrmModule],
-  providers: [JwtAuthService, BookService, LabirintBookParserService, ChitaiGorodParserService],
+  providers: [JwtAuthService, BookService, LabirintBookParserService, ChitaiGorodParserService, Logger],
 })
 export class DatabaseModule {}

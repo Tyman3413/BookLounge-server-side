@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Books } from "../models/books.entity";
+import { Books } from "../entities/books.entity";
 import { Repository } from "typeorm";
-import { BookDetails } from "../models/book-details.entity";
+import { BookDetails } from "../entities/book-details.entity";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
@@ -181,7 +181,6 @@ export class ChitaiGorodParserService {
           existingBookDetails.image_cover = image_cover;
           existingBookDetails.publisher = publisher;
           existingBookDetails.series = series;
-          existingBookDetails.circulation = circulation;
           existingBookDetails.weight = !isNaN(weight) ? weight : null;
           existingBookDetails.size = size;
           existingBookDetails.isbn = isbn;
