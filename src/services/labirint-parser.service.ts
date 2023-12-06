@@ -24,21 +24,21 @@ export class LabirintBookParserService {
     const maxPages = await this.parseMaxPages();
 
     for (let page = 1; page <= maxPages; page++) {
-      const responce = await axios.get(`https://www.labirint.ru/genres/1852/?page=${page}`);
+      const response = await axios.get(`https://www.labirint.ru/genres/1852/?page=${page}`);
       this.logger.log(`Parsing page ${page}...`, LabirintBookParserService.name);
 
-      if (responce.status === 200) {
-        const $ = cheerio.load(responce.data);
+      if (response.status === 200) {
+        const $ = cheerio.load(response.data);
 
-        // Парсинг с раздела "Все книги жанра"
-        const promises = $(".genres-catalog .genres-carousel__item").map(async (index, element) => {
+        for (let index = 0; index < $(".genres-catalog .genres-carousel__item").length; index++) {
+          const element = $(".genres-catalog .genres-carousel__item").eq(index);
           const title = $(element).find(".product-title").text().trim();
 
           const book_id_element = $(element).find(".genres-carousel__item .product").attr("data-product-id").trim();
           const book_id = parseInt(book_id_element, 10);
 
-          const priceELement = $(element).find(".genres-carousel__item .product").attr("data-discount-price");
-          const price = parseInt(priceELement, 10);
+          const priceElement = $(element).find(".genres-carousel__item .product").attr("data-discount-price");
+          const price = parseInt(priceElement, 10);
 
           const old_priceElement = $(element).find(".genres-carousel__item .product").attr("data-price");
           let old_price = parseInt(old_priceElement, 10);
@@ -58,6 +58,7 @@ export class LabirintBookParserService {
             newBook.title = title;
             newBook.updated_at = new Date();
             await this.bookRepository.save(newBook);
+
             const newBookDetails = new BookDetails();
             newBookDetails.id_book = newBook.id;
             newBookDetails.source = source;
@@ -71,15 +72,15 @@ export class LabirintBookParserService {
             } else {
               newBookDetails.old_price = null;
             }
+
             await this.bookDetailsRepository.save(newBookDetails);
 
             await this.parseAdditionalInfoBook(newBook.id, `https://www.labirint.ru/books/${book_id}`);
-
-            return this.bookRepository.save(newBook);
           } else {
             existingBook.title = title;
             existingBook.updated_at = new Date();
             await this.bookRepository.save(existingBook);
+
             const newBookDetails = await this.bookDetailsRepository.findOne({
               where: { id_book: existingBook.id, source: source },
             });
@@ -97,12 +98,13 @@ export class LabirintBookParserService {
 
             await this.parseAdditionalInfoBook(existingBook.id, `https://www.labirint.ru/books/${book_id}`);
           }
-        });
 
-        await Promise.all(promises);
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       }
     }
     this.logger.log("Parsing ended successfully", LabirintBookParserService.name);
+
     return books;
   }
 
@@ -121,10 +123,10 @@ export class LabirintBookParserService {
 
   async parseAdditionalInfoBook(bookId: number, bookURL: string) {
     try {
-      const responce = await axios.get(bookURL);
+      const response = await axios.get(bookURL);
 
-      if (responce.status === 200) {
-        const $ = cheerio.load(responce.data);
+      if (response.status === 200) {
+        const $ = cheerio.load(response.data);
 
         const authorElement = $(".authors a");
         const author = authorElement.length
@@ -163,8 +165,6 @@ export class LabirintBookParserService {
 
         const book_idElement = $(".articul").text().replace(/\D/g, "");
         const book_id = parseInt(book_idElement, 10);
-
-        const circulation = ""; // Установите значение, если у вас есть информация о тираже
 
         const source = "Labirint";
 

@@ -5,10 +5,13 @@ import { Repository } from "typeorm";
 import { BookDetails } from "../entities/book-details.entity";
 import axios from "axios";
 import * as cheerio from "cheerio";
+import { Logger } from "./logger.service";
 
 @Injectable()
 export class ChitaiGorodParserService {
   constructor(
+    private readonly logger: Logger,
+
     @InjectRepository(Books)
     private readonly bookRepository: Repository<Books>,
 
@@ -18,23 +21,29 @@ export class ChitaiGorodParserService {
 
   async parseChitaiGorodBook(): Promise<Books[]> {
     const books: Books[] = [];
-    const maxPages = await this.parseMaxPages(); // TEST
+    const maxPages = 20; // await this.parseMaxPages();
 
     for (let page = 1; page <= maxPages; page++) {
-      const responce = await axios.get(`https://www.chitai-gorod.ru/catalog/books/hudozhestvennaya-literatura-110001?page=${page}`);
-      console.log(`Parsing page ${page}...`);
+      const response = await axios.get(`https://www.chitai-gorod.ru/catalog/books/hudozhestvennaya-literatura-110001?page=${page}`);
+      this.logger.log(`Parsing page ${page}...`, ChitaiGorodParserService.name);
 
-      if (responce.status === 200) {
-        const $ = cheerio.load(responce.data);
+      if (response.status === 200) {
+        const $ = cheerio.load(response.data);
 
-        const promises = $(".products-list .product-card").map(async (index, element) => {
-          const title = $(element).find(".product-title__head").text().trim();
+        for (let index = 0; index < $("section.catalog-list .products-list article.product-card").length; index++) {
+          const element = $("section.catalog-list .products-list article.product-card").eq(index);
 
-          const priceElement = $(element).find(".product-price__value").text().trim();
+          const title = $(element).attr("data-chg-product-name");
+
+          const priceElement = $(element).attr("data-chg-product-price");
           const price = parseInt(priceElement, 10);
 
-          const old_priceElement = $(element).find(".product-price__old").text().trim();
-          const old_price = parseInt(old_priceElement, 10);
+          const old_priceElement = $(element).attr("data-chg-product-old-price");
+          let old_price = parseInt(old_priceElement, 10);
+
+          if (old_price === price) {
+            old_price = null;
+          }
 
           const bookUrl = $(element).find("a.product-card__title").attr("href");
 
@@ -47,6 +56,7 @@ export class ChitaiGorodParserService {
           if (!existingBook) {
             const newBook = new Books();
             newBook.title = title;
+            newBook.updated_at = new Date();
             await this.bookRepository.save(newBook);
 
             const newBookDetails = new BookDetails();
@@ -67,9 +77,12 @@ export class ChitaiGorodParserService {
 
             await this.parseAdditionalInfoBook(newBook.id, `https://www.chitai-gorod.ru${bookUrl}`);
 
-            return this.bookRepository.save(newBook);
+            books.push(newBook);
           } else {
             existingBook.title = title;
+            existingBook.updated_at = new Date();
+            await this.bookRepository.save(existingBook);
+
             const existingBookDetails = await this.bookDetailsRepository.findOne({
               where: { id_book: existingBook.id, source: source },
             });
@@ -105,41 +118,46 @@ export class ChitaiGorodParserService {
 
               await this.parseAdditionalInfoBook(existingBook.id, `https://www.chitai-gorod.ru${bookUrl}`);
             }
-            return this.bookRepository.save(existingBook);
           }
-        });
-        await Promise.all(promises);
+
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
       }
     }
-    console.log(`Parsing ended successfully`);
+    this.logger.log(`Parsing ended successfully`, ChitaiGorodParserService.name);
+
     return books;
   }
 
   async parseMaxPages(): Promise<number> {
-    try {
-      const responce = await axios.get("https://www.chitai-gorod.ru/catalog/books/hudozhestvennaya-literatura-110001");
-      if (responce.status === 200) {
-        const $ = cheerio.load(responce.data);
+    const response = await axios.get("https://www.chitai-gorod.ru/catalog/books/hudozhestvennaya-literatura-110001");
+    if (response.status === 200) {
+      const $ = cheerio.load(response.data);
 
-        const pagintationElement = $(".pagination .pagination__wrapper .pagination__button .pagination__text span").last().text().trim();
-        return parseInt(pagintationElement, 10);
-      }
-    } catch (e) {
-      console.log(e);
+      const paginationElement = $(".pagination .pagination__wrapper .pagination__button:not(.pagination__button--icon)").last();
+      const pageElement = paginationElement.find("span.pagination__text").text().trim();
+
+      return parseInt(pageElement, 10);
     }
+    return 1;
   }
 
   async parseAdditionalInfoBook(bookId: number, bookUrl: string) {
     try {
-      const responce = await axios.get(bookUrl);
+      const response = await axios.get(bookUrl);
 
-      if (responce.status === 200) {
-        const $ = cheerio.load(responce.data);
+      if (response.status === 200) {
+        const $ = cheerio.load(response.data);
 
         const authorElement = $(".product-detail-title__authors a");
-        const author = authorElement.length ? authorElement.text().trim() : "не указан";
+        const author = authorElement.length
+          ? Array.from(authorElement)
+              .map(element => $(element).text().trim())
+              .join(", ")
+          : "";
 
-        const image_cover = $(".product-gallery__picture img").attr("srcset");
+        const image_coverElement = $(".product-gallery__picture img").attr("srcset");
+        const image_cover = image_coverElement.split(" ")[0];
 
         const publisher = $('a.product-detail-characteristics__item-value[itemprop="publisher"]').text().trim();
 
@@ -152,9 +170,14 @@ export class ChitaiGorodParserService {
 
         const size = $('span.product-detail-characteristics__item-title:contains("Размер")').next("span.product-detail-characteristics__item-value").text().trim();
 
-        const age_restriction = "";
+        // const browser = await puppeteer.launch();
+        // const page = await browser.newPage();
+        // await page.goto(bookUrl);
+        // await page.click(".product-detail-characteristics__toggle");
+        // await page.waitForSelector('.product-detail-characteristics__item-title:contains("Возрастные ограничения")');
+        // const age_restriction = $('span.product-detail-characteristics__item-value[itemprop="typicalAgeRange"]').text().trim();
 
-        const genre = $("ul.product-detail-header__breadcrumbs li.breadcrumbs__item a span").text().trim();
+        const genre = $("ul.product-detail-header__breadcrumbs li.breadcrumbs__item:last-child span").text().trim();
 
         const description = $(".product-detail-additional__description").text().trim();
 
@@ -166,8 +189,6 @@ export class ChitaiGorodParserService {
 
         const book_idElement = $('.product-detail-characteristics__item-title:contains("ID товара")').next(".product-detail-characteristics__item-value").text().trim();
         const book_id = parseInt(book_idElement, 10);
-
-        const circulation = $('.product-detail-characteristics__item-title:contains("Серия")').next(".product-detail-characteristics__item-value").text().trim();
 
         const source = "Читай-город";
 
@@ -181,10 +202,10 @@ export class ChitaiGorodParserService {
           existingBookDetails.image_cover = image_cover;
           existingBookDetails.publisher = publisher;
           existingBookDetails.series = series;
-          existingBookDetails.weight = !isNaN(weight) ? weight : null;
-          existingBookDetails.size = size;
+          existingBookDetails.weight = weight || existingBookDetails.weight;
+          existingBookDetails.size = size || existingBookDetails.size;
           existingBookDetails.isbn = isbn;
-          existingBookDetails.age_restriction = age_restriction;
+          existingBookDetails.age_restriction = existingBookDetails.age_restriction;
           existingBookDetails.description = description;
           existingBookDetails.genre = genre;
           existingBookDetails.pub_year = pub_year;
@@ -194,7 +215,7 @@ export class ChitaiGorodParserService {
         }
       }
     } catch (error) {
-      console.error("Error: ", error.message);
+      console.error(`Error: ${error.message}`, ChitaiGorodParserService.name);
     }
   }
 }
