@@ -74,9 +74,22 @@ export class BookController {
     description: "Количество элементов на странице",
     required: true,
   })
-  async findDiscountBooks(@Query() PaginationQuery: PaginationQueryDto): Promise<Books[]> {
+  @ApiQuery({
+    name: "sort",
+    type: String,
+    description: "Поле сортировки",
+    required: false,
+  })
+  @ApiQuery({
+    name: "order",
+    type: String,
+    description: "Направление сортировки",
+    required: false,
+  })
+  async findDiscountBooks(@Query() PaginationQuery: PaginationQueryDto): Promise<{ books: Books[]; totalCount: number }> {
     const { page, limit } = PaginationQuery;
-    return this.bookService.findDiscountBooks(page, limit);
+    const [books, totalCount] = await this.bookService.findDiscountBooks(page, limit);
+    return { books, totalCount };
   }
 
   @Get("new")
@@ -96,8 +109,13 @@ export class BookController {
     description: "Количество элементов на странице",
     required: true,
   })
-  async findNewBooks(@Query() PaginationQuery: PaginationQueryDto): Promise<Books[]> {
+  async findNewBooks(@Query() PaginationQuery: PaginationQueryDto): Promise<{ books: Books[]; totalCount: number }> {
     const { page, limit } = PaginationQuery;
-    return this.bookService.findNewBooks(page, limit);
+    const [books, totalCount] = await this.bookService.findNewBooks(page, limit);
+    return { books, totalCount };
   }
+
+  // TODO
+  // @Get('genres')
+  // async findGenres(@Query() )
 }
