@@ -8,7 +8,7 @@ export class PaginationQueryDto {
   @IsPositive()
   page?: number;
 
-  @ApiProperty({ description: "Количество элементов на странице", required: false, default: 12 })
+  @ApiProperty({ description: "Количество элементов на странице", required: false, default: 20 })
   @IsOptional()
   @IsNumber()
   @IsPositive()

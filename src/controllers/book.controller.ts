@@ -19,24 +19,18 @@ export class BookController {
     name: "page",
     type: Number,
     description: "Номер страницы",
-    required: true,
+    required: false,
   })
   @ApiQuery({
     name: "limit",
     type: Number,
     description: "Количество элементов на странице",
-    required: true,
+    required: false,
   })
   @ApiQuery({
     name: "sort",
     type: String,
     description: "Поле сортировки",
-    required: false,
-  })
-  @ApiQuery({
-    name: "order",
-    type: String,
-    description: "Направление сортировки",
     required: false,
   })
   @ApiQuery({
@@ -49,11 +43,10 @@ export class BookController {
   async findAll(
     @Query() paginationQuery: PaginationQueryDto,
     @Query("sort") sort: string = "id",
-    @Query("order") order: "ASC" | "DESC" = "ASC",
-    @Query("genre") genre: string[] = [],
+    @Query("genre") genre: string | string[],
   ): Promise<{ books: Books[]; totalCount: number }> {
     const { page, limit } = paginationQuery;
-    const [books, totalCount] = await this.bookService.findAll(page, limit, sort, order, genre);
+    const [books, totalCount] = await this.bookService.findAll(page, limit, sort, genre);
     return { books, totalCount };
   }
 
@@ -101,21 +94,17 @@ export class BookController {
     name: "page",
     type: Number,
     description: "Номер страницы",
-    required: true,
+    required: false,
   })
   @ApiQuery({
     name: "limit",
     type: Number,
     description: "Количество элементов на странице",
-    required: true,
+    required: false,
   })
   async findNewBooks(@Query() PaginationQuery: PaginationQueryDto): Promise<{ books: Books[]; totalCount: number }> {
     const { page, limit } = PaginationQuery;
     const [books, totalCount] = await this.bookService.findNewBooks(page, limit);
     return { books, totalCount };
   }
-
-  // TODO
-  // @Get('genres')
-  // async findGenres(@Query() )
 }
