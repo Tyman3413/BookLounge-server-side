@@ -13,6 +13,8 @@ import { Books } from "src/entities/books.entity";
 import { BookDetails } from "src/entities/book-details.entity";
 import { ChitaiGorodParserService } from "../../services/chitai-gorod-parser.service";
 import { Logger } from "../../services/logger.service";
+import { Genres } from "../../entities/genres.entity";
+import { GenresParserService } from "../../services/genres-parser.service";
 
 // Настройка .env файла
 dotenv.config();
@@ -27,12 +29,12 @@ dotenv.config();
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, Books, BookDetails],
+      entities: [User, Books, BookDetails, Genres],
       synchronize: true,
     }),
 
     // Подключение сущности User
-    TypeOrmModule.forFeature([User, Books, BookDetails]),
+    TypeOrmModule.forFeature([User, Books, BookDetails, Genres]),
 
     // Регистрация JWT-токена
     JwtModule.register({
@@ -42,6 +44,6 @@ dotenv.config();
   ],
   controllers: [AuthController, ParseBookController, BookController],
   exports: [TypeOrmModule],
-  providers: [JwtAuthService, BookService, LabirintBookParserService, ChitaiGorodParserService, Logger],
+  providers: [JwtAuthService, BookService, LabirintBookParserService, ChitaiGorodParserService, Logger, GenresParserService],
 })
 export class DatabaseModule {}

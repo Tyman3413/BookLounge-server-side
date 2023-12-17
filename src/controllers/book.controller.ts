@@ -3,6 +3,7 @@ import { BookService } from "src/services/book.service";
 import { Books } from "../entities/books.entity";
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PaginationQueryDto } from "src/dto/pagination.dto";
+import { Genres } from "../entities/genres.entity";
 
 @Controller("get-books")
 @ApiTags("Books")
@@ -101,5 +102,14 @@ export class BookController {
     const { page, limit } = PaginationQuery;
     const [books, totalCount] = await this.bookService.findNewBooks(page, limit);
     return { books, totalCount };
+  }
+
+  @Get("genres")
+  @ApiOperation({
+    summary: "Получить список жанров",
+  })
+  @ApiResponse({ status: 200, description: "Успешный запрос", type: [Genres] })
+  async findGenres(): Promise<Genres[]> {
+    return await this.bookService.findGenres();
   }
 }

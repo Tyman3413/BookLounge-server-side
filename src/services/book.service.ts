@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Books } from "src/entities/books.entity";
 import { Repository } from "typeorm";
 import { BookDetails } from "../entities/book-details.entity";
+import { Genres } from "../entities/genres.entity";
 
 @Injectable()
 export class BookService {
@@ -12,6 +13,9 @@ export class BookService {
 
     @InjectRepository(BookDetails)
     private readonly bookDetailsRepository: Repository<BookDetails>,
+
+    @InjectRepository(Genres)
+    private readonly genresRepository: Repository<Genres>,
   ) {}
 
   async findAll(page: number, limit: number, sort: string, genre: string): Promise<[Books[], number]> {
@@ -68,6 +72,22 @@ export class BookService {
         genreHorror: "%ужасы%",
         genreMystic: "%мист%",
       });
+    } else if (genre === "fantastic") {
+      query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantastic", {
+        genreFantastic: "%фантаст%",
+      });
+    } else if (genre === "fantasy") {
+      query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantasy", {
+        genreFantasy: "%фэнтези%",
+      });
+    } else if (genre === "epic") {
+      query.andWhere("LOWER(bookDetails.genre) LIKE :genreEpic", {
+        genreEpic: "%эпос%",
+      });
+    } else if (genre === "humor") {
+      query.andWhere("LOWER(bookDetails.genre) LIKE :genreHumor", {
+        genreHumor: "%юмор%",
+      });
     }
 
     const [books, totalCount] = await query
@@ -102,5 +122,9 @@ export class BookService {
       .getManyAndCount();
 
     return [books, totalCount];
+  }
+
+  async findGenres(): Promise<Genres[]> {
+    return await this.genresRepository.createQueryBuilder("genres").getMany();
   }
 }
