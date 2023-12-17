@@ -17,11 +17,13 @@ export class GenresParserService {
     const response = await axios.get(`https://www.labirint.ru/genres/1852/`);
     if (response.status === 200) {
       const $ = cheerio.load(response.data);
-      $(".subgenres ul li").each((index, element) => {
+      $(".subgenres ul.genre-list-all li").each((index, element) => {
         const title = $(element).find("a").text();
-        const newGenres = new Genres();
-        newGenres.title = title;
-        genres.push(newGenres);
+        if (title.length !== 0 && title !== "Главные книги отдела") {
+          const newGenres = new Genres();
+          newGenres.title = title;
+          genres.push(newGenres);
+        }
       });
       await this.genresRepository.save(genres);
     }
