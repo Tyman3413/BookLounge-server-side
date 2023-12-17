@@ -15,6 +15,9 @@ import { ChitaiGorodParserService } from "../../services/chitai-gorod-parser.ser
 import { Logger } from "../../services/logger.service";
 import { Genres } from "../../entities/genres.entity";
 import { GenresParserService } from "../../services/genres-parser.service";
+import { Bookmarks } from "../../entities/bookmarks.entity";
+import { BookmarksService } from "../../services/bookmarks.service";
+import { BookmarksController } from "../../controllers/bookmarks.controller";
 
 // Настройка .env файла
 dotenv.config();
@@ -29,12 +32,12 @@ dotenv.config();
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, Books, BookDetails, Genres],
+      entities: [User, Bookmarks, Books, BookDetails, Genres],
       synchronize: true,
     }),
 
     // Подключение сущности User
-    TypeOrmModule.forFeature([User, Books, BookDetails, Genres]),
+    TypeOrmModule.forFeature([User, Bookmarks, Books, BookDetails, Genres]),
 
     // Регистрация JWT-токена
     JwtModule.register({
@@ -42,8 +45,8 @@ dotenv.config();
       signOptions: { expiresIn: "3d" }, // токен истекает через 3 дня
     }),
   ],
-  controllers: [AuthController, ParseBookController, BookController],
+  controllers: [AuthController, ParseBookController, BookController, BookmarksController],
   exports: [TypeOrmModule],
-  providers: [JwtAuthService, BookService, LabirintBookParserService, ChitaiGorodParserService, Logger, GenresParserService],
+  providers: [JwtAuthService, BookService, LabirintBookParserService, ChitaiGorodParserService, Logger, GenresParserService, BookmarksService],
 })
 export class DatabaseModule {}

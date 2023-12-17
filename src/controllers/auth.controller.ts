@@ -5,6 +5,7 @@ import { User } from "../entities/user.entity";
 import { JwtAuthService } from "src/services/jwt/jwt.service";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { SendPhoneNumberDto } from "src/dto/phone-number.dto";
+import { VerifyCodeDto } from "../dto/confirmation-code.dto";
 
 // Создание контроллера для получения запросов для авторизации пользователя в системе
 @Controller("auth")
@@ -34,6 +35,7 @@ export class AuthController {
 
   // Post запрос для получения кода подтверждения и его сравнения с заглушкой через env файл
   @Post("verify-code")
+  @ApiBody({ type: VerifyCodeDto })
   @ApiOperation({
     summary: "Проверка кода подтверждения и выдача JWT-токена",
   })
