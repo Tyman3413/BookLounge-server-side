@@ -23,7 +23,7 @@ export class BookService {
     }
 
     if (genre && genre.length > 0) {
-      query.andWhere("bookDetails.genre IN (:genre)", { genre });
+      query.andWhere("bookDetails.genre IN (:...genre)", { genre });
     }
 
     const [books, totalCount] = await query
@@ -34,24 +34,29 @@ export class BookService {
     return [books, totalCount];
   }
 
-  async findDiscountBooks(page: number, limit: number): Promise<Books[]> {
-    return this.bookRepository
+  async findDiscountBooks(page: number, limit: number): Promise<[Books[], number]> {
+    const query = await this.bookRepository
       .createQueryBuilder("books")
       .leftJoinAndSelect("books.details", "bookDetails")
       .where("bookDetails.old_price IS NOT NULL")
-      .orderBy("books_id")
+      .orderBy("books_id");
+
+    const [books, totalCount] = await query
       .skip((page - 1) * limit)
       .take(limit)
-      .getMany();
+      .getManyAndCount();
+
+    return [books, totalCount];
   }
 
-  async findNewBooks(page: number, limit: number): Promise<Books[]> {
-    return this.bookRepository
-      .createQueryBuilder("books")
-      .leftJoinAndSelect("books.details", "bookDetails")
-      .orderBy("books.updated_at", "DESC")
+  async findNewBooks(page: number, limit: number): Promise<[Books[], number]> {
+    const query = await this.bookRepository.createQueryBuilder("books").leftJoinAndSelect("books.details", "bookDetails").orderBy("books.updated_at", "DESC");
+
+    const [books, totalCount] = await query
       .skip((page - 1) * limit)
       .take(limit)
-      .getMany();
+      .getManyAndCount();
+
+    return [books, totalCount];
   }
 }
