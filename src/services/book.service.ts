@@ -29,81 +29,6 @@ export class BookService {
       query.orderBy("bookDetails.price", "ASC");
     }
 
-    // if (typeof genre === "string") {
-    //   if (genre === "Афоризмы") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genresAphorisms", {
-    //       genresAphorisms: "%афоризмы%",
-    //     });
-    //   } else if (genre === "Басни") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genresFables", {
-    //       genresFables: "%басни%",
-    //     });
-    //   } else if (genre === "Детективы") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreDetective", {
-    //       genreDetective: "%детектив%",
-    //     });
-    //   } else if (genre === "Драматургия") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreDrama", {
-    //       genreDrama: "%драма%",
-    //     });
-    //   } else if (genre === "Историческая проза") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreHistoric AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-    //       genreProse: "%проза%",
-    //       genreHistoric: "%истор%",
-    //       genreRomance: "%роман%",
-    //     });
-    //   } else if (genre === "Классическая проза") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreClassic AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-    //       genreClassic: "%класс%",
-    //       genreProse: "%проза%",
-    //       genreRomance: "%роман%",
-    //     });
-    //   } else if (genre === "Отечественный боевик") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreThriller OR LOWER(bookDetails.genre) LIKE :genreAction", {
-    //       genreThriller: "%триллер%",
-    //       genreAction: "%боевик%",
-    //     });
-    //   } else if (genre === "Поэзия") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genrePoetry", {
-    //       genrePoetry: "%поэзия%",
-    //     });
-    //   } else if (genre === "Приключения") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreJourney", {
-    //       genreJourney: "%приключ%",
-    //     });
-    //   } else if (genre === "Сентиментальная проза") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreSentimental AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-    //       genreSentimental: "%сентимиент%",
-    //       genreProse: "%проза%",
-    //       genreRomance: "%роман%",
-    //     });
-    //   } else if (genre === "Современная проза") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreModern AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-    //       genreModern: "%совр%",
-    //       genreProse: "%проза%",
-    //       genreRomance: "%роман%",
-    //     });
-    //   } else if (genre === "Фантастика") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantastic", {
-    //       genreFantastic: "%фантаст%",
-    //     });
-    //   } else if (genre === "Фэнтези") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantasy OR LOWER(bookDetails.genre) LIKE :genreNovel", {
-    //       genreFantasy: "%фэнтези%",
-    //       genreNovel: "%новел%",
-    //     });
-    //   } else if (genre === "Эпос и фольклор") {
-    //     query.andWhere("LOWER(bookDetails.genre) LIKE :genreEpic OR LOWER(bookDetails.genre) LIKE :genreMusic", {
-    //       genreEpic: "%эпос%",
-    //       genreMusic: "%муз%",
-    //     });
-    //   }
-    // }
-    // if (Array.isArray(genre) && genre.length > 0) {
-    //   const genreConditions = genre.map(g => this.buildGenreCondition(g));
-    //   query.andWhere(`(${genreConditions.join(" OR ")})`);
-    // }
-
     if (genre) {
       const genreArray = Array.isArray(genre) ? genre : genre.split(",");
       const genreConditions = genreArray.map(g => this.buildGenreCondition(g.trim()));
@@ -163,78 +88,9 @@ export class BookService {
       query.orderBy("bookDetails.price", "ASC");
     }
 
-    if (typeof genre === "string") {
-      if (genre === "Афоризмы") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genresAphorisms", {
-          genresAphorisms: "%афоризмы%",
-        });
-      } else if (genre === "Басни") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genresFables", {
-          genresFables: "%басни%",
-        });
-      } else if (genre === "Детективы") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreDetective", {
-          genreDetective: "%детектив%",
-        });
-      } else if (genre === "Драматургия") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreDrama", {
-          genreDrama: "%драма%",
-        });
-      } else if (genre === "Историческая проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreHistoric AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreProse: "%проза%",
-          genreHistoric: "%истор%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Классическая проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreClassic AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreClassic: "%класс%",
-          genreProse: "%проза%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Отечественный боевик") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreThriller OR LOWER(bookDetails.genre) LIKE :genreAction", {
-          genreThriller: "%триллер%",
-          genreAction: "%боевик%",
-        });
-      } else if (genre === "Поэзия") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genrePoetry", {
-          genrePoetry: "%поэзия%",
-        });
-      } else if (genre === "Приключения") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreJourney", {
-          genreJourney: "%приключ%",
-        });
-      } else if (genre === "Сентиментальная проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreSentimental AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreSentimental: "%сентимиент%",
-          genreProse: "%проза%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Современная проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreModern AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreModern: "%совр%",
-          genreProse: "%проза%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Фантастика") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantastic", {
-          genreFantastic: "%фантаст%",
-        });
-      } else if (genre === "Фэнтези") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantasy OR LOWER(bookDetails.genre) LIKE :genreNovel", {
-          genreFantasy: "%фэнтези%",
-          genreNovel: "%новел%",
-        });
-      } else if (genre === "Эпос и фольклор") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreEpic OR LOWER(bookDetails.genre) LIKE :genreMusic", {
-          genreEpic: "%эпос%",
-          genreMusic: "%муз%",
-        });
-      }
-    }
-    if (Array.isArray(genre) && genre.length > 0) {
-      const genreConditions = genre.map(g => this.buildGenreCondition(g));
+    if (genre) {
+      const genreArray = Array.isArray(genre) ? genre : genre.split(",");
+      const genreConditions = genreArray.map(g => this.buildGenreCondition(g.trim()));
       query.andWhere(`(${genreConditions.join(" OR ")})`);
     }
 
@@ -257,78 +113,9 @@ export class BookService {
       query.orderBy("bookDetails.price", "ASC");
     }
 
-    if (typeof genre === "string") {
-      if (genre === "Афоризмы") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genresAphorisms", {
-          genresAphorisms: "%афоризмы%",
-        });
-      } else if (genre === "Басни") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genresFables", {
-          genresFables: "%басни%",
-        });
-      } else if (genre === "Детективы") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreDetective", {
-          genreDetective: "%детектив%",
-        });
-      } else if (genre === "Драматургия") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreDrama", {
-          genreDrama: "%драма%",
-        });
-      } else if (genre === "Историческая проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreHistoric AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreProse: "%проза%",
-          genreHistoric: "%истор%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Классическая проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreClassic AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreClassic: "%класс%",
-          genreProse: "%проза%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Отечественный боевик") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreThriller OR LOWER(bookDetails.genre) LIKE :genreAction", {
-          genreThriller: "%триллер%",
-          genreAction: "%боевик%",
-        });
-      } else if (genre === "Поэзия") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genrePoetry", {
-          genrePoetry: "%поэзия%",
-        });
-      } else if (genre === "Приключения") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreJourney", {
-          genreJourney: "%приключ%",
-        });
-      } else if (genre === "Сентиментальная проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreSentimental AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreSentimental: "%сентимиент%",
-          genreProse: "%проза%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Современная проза") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreModern AND (LOWER(bookDetails.genre) LIKE :genreProse OR LOWER(bookDetails.genre) LIKE :genreRomance)", {
-          genreModern: "%совр%",
-          genreProse: "%проза%",
-          genreRomance: "%роман%",
-        });
-      } else if (genre === "Фантастика") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantastic", {
-          genreFantastic: "%фантаст%",
-        });
-      } else if (genre === "Фэнтези") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreFantasy OR LOWER(bookDetails.genre) LIKE :genreNovel", {
-          genreFantasy: "%фэнтези%",
-          genreNovel: "%новел%",
-        });
-      } else if (genre === "Эпос и фольклор") {
-        query.andWhere("LOWER(bookDetails.genre) LIKE :genreEpic OR LOWER(bookDetails.genre) LIKE :genreMusic", {
-          genreEpic: "%эпос%",
-          genreMusic: "%муз%",
-        });
-      }
-    }
-    if (Array.isArray(genre) && genre.length > 0) {
-      const genreConditions = genre.map(g => this.buildGenreCondition(g));
+    if (genre) {
+      const genreArray = Array.isArray(genre) ? genre : genre.split(",");
+      const genreConditions = genreArray.map(g => this.buildGenreCondition(g.trim()));
       query.andWhere(`(${genreConditions.join(" OR ")})`);
     }
 
