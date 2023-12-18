@@ -35,7 +35,7 @@ export class BookController {
     required: false,
   })
   @ApiQuery({
-    name: "genres",
+    name: "genre",
     type: [String],
     description: "Жанры для фильтрации",
     required: false,
@@ -43,10 +43,10 @@ export class BookController {
   async findAll(
     @Query() paginationQuery: PaginationQueryDto,
     @Query("sort") sort: string = "id",
-    @Query("genres") genres: string | string[],
+    @Query("genre") genre: string | string[],
   ): Promise<{ books: Books[]; totalCount: number }> {
     const { page, limit } = paginationQuery;
-    const [books, totalCount] = await this.bookService.findAll(page, limit, sort, genres);
+    const [books, totalCount] = await this.bookService.findAll(page, limit, sort, genre);
     return { books, totalCount };
   }
 

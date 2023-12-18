@@ -29,6 +29,7 @@ async function bootstrap() {
     .addTag("Books", "Операции с книгами")
     .addTag("Parsing", "Запуск парсинга книг")
     .addTag("Bookmarks", "Управление загладками")
+    .addTag("Authentication", "Авторизация пользователя в системе")
     .setContact("Fedin Victor", "https://t.me/Tyman3413", "tyman3413@gmail.com")
     .setVersion("Test")
     .build();

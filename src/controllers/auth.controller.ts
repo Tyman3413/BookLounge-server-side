@@ -6,10 +6,11 @@ import { JwtAuthService } from "src/services/jwt/jwt.service";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { SendPhoneNumberDto } from "src/dto/phone-number.dto";
 import { VerifyCodeDto } from "../dto/confirmation-code.dto";
+import * as process from "process";
 
 // Создание контроллера для получения запросов для авторизации пользователя в системе
 @Controller("auth")
-@ApiTags("Authentification")
+@ApiTags("Authentication")
 export class AuthController {
   constructor(
     @InjectRepository(User)
@@ -30,7 +31,9 @@ export class AuthController {
 
     req.session.phoneNumber = phoneNumber;
 
-    return { success: true };
+    const code = process.env.CONFIRMATION_CODE;
+
+    return { success: true, code };
   }
 
   // Post запрос для получения кода подтверждения и его сравнения с заглушкой через env файл
